@@ -1,14 +1,22 @@
 from storage_json import StorageJson
+from storage_csv import StorageCsv
 from movie_app import MovieApp
 import title_menu as t
 
-
 def main():
-    storage = StorageJson('movies.json')  # Create the storage
-    movie_app = MovieApp(storage)  # Create the MovieApp
+    # Test with JSON storage
+    print("--- Testing with JSON Storage ---")
+    json_storage = StorageJson('movies.json')
+    json_app = MovieApp(json_storage)
+    t.print_title()
+    json_app.run()
 
-    t.print_title()  # Print the title
-    movie_app.run()  # Run the MovieApp
+    # Test with CSV storage
+    print("\n--- Testing with CSV Storage ---")
+    csv_storage = StorageCsv('movies.csv')
+    csv_app = MovieApp(csv_storage)
+    t.print_title()
+    csv_app.run()
 
 if __name__ == "__main__":
     main()
