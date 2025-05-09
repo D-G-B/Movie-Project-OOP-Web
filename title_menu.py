@@ -40,6 +40,7 @@ def print_menu():
     7. Search movie
     8. Movies sorted by rating
     9. Movies sorted by year
+    10. Generate Website
 
     Enter choice (1-10): 
     """

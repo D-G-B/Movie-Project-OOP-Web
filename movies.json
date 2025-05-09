@@ -8,5 +8,15 @@
         "year": "2008",
         "rating": 1.1,
         "poster": "https://m.media-amazon.com/images/M/MV5BNWYxYzA4ZmItZGFjMS00ZTlmLWFkZDMtZDQ0MTE0MGNkYjcwXkEyXkFqcGc@._V1_SX300.jpg"
+    },
+    "Run": {
+        "year": "2020",
+        "rating": "6.7",
+        "poster": "https://m.media-amazon.com/images/M/MV5BOTViNDViNDgtNDc0Ny00NWZkLTljMzctYjgzNzI5MTYwZjJlXkEyXkFqcGc@._V1_SX300.jpg"
+    },
+    "Troy": {
+        "year": "2004",
+        "rating": "7.3",
+        "poster": "https://m.media-amazon.com/images/M/MV5BMTk5MzU1MDMwMF5BMl5BanBnXkFtZTcwNjczODMzMw@@._V1_SX300.jpg"
     }
 }

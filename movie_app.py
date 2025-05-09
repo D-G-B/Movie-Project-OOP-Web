@@ -26,6 +26,7 @@ class MovieApp:
         if not self._api_key:
             print("Warning: OMDb API key not found in environment variables. 'Add Movie' will be limited.")
 
+
     def _list_all_movies(self):
         """
         Lists all the movies in the storage.
@@ -39,6 +40,7 @@ class MovieApp:
                 print(f"- {title}: Year={details['year']}, Rating={details['rating']}, Poster={details['poster']}")
         else:
             print("No movies in the storage.")
+
 
     def _add_new_movie(self):
         """
@@ -78,6 +80,7 @@ class MovieApp:
         except ValueError:
             print("Error decoding JSON response from OMDb API.")
 
+
     def _delete_existing_movie(self):
         """
         Deletes a movie from the storage.
@@ -90,6 +93,7 @@ class MovieApp:
             print(f"Movie '{title}' deleted successfully.")
         else:
             print(f"Movie '{title}' not found.")
+
 
     def _update_existing_movie(self):
         """
@@ -109,6 +113,7 @@ class MovieApp:
                 print("Invalid rating. Please enter a number between 0 and 10.")
         else:
             print(f"Movie '{title}' not found.")
+
 
     def _show_stats(self):
         """
@@ -137,6 +142,7 @@ class MovieApp:
         except ValueError:
             return False
 
+
     def _show_random_movie(self):
         """
         Displays a random movie from the storage.
@@ -150,6 +156,7 @@ class MovieApp:
             print(f"Random movie: {random_movie} (Year: {details['year']}, Rating: {details['rating']}, Poster: {details['poster']})")
         else:
             print("No movies in the storage to pick a random one.")
+
 
     def _search_movies(self):
         """
@@ -170,6 +177,7 @@ class MovieApp:
         else:
             print(f"No movies found matching '{search_term}'.")
 
+
     def _show_movies_by_rating(self):
         """
         Displays movies sorted by rating (highest to lowest).
@@ -189,6 +197,7 @@ class MovieApp:
                 print("No movies with valid ratings to sort.")
         else:
             print("No movies in the storage.")
+
 
     def _show_movies_by_year(self):
         """
@@ -212,6 +221,7 @@ class MovieApp:
         else:
             print("No movies in the storage.")
 
+
     @staticmethod
     def _exit():
         """
@@ -220,6 +230,73 @@ class MovieApp:
         :return: bool: False to stop the application loop.
         """
         return False
+
+    def _generate_website(self):
+        """
+        Generates the movie website based on the stored movies and the template.
+
+        :return: None
+        """
+        movies = self._storage.list_movies()
+        template_path = os.path.join("_static", "index_template.html")
+        output_path = os.path.join("_static", "index.html")
+        app_title_lines = [
+            "   * )     * )        (       (      (                                       (        ",
+            " (  `    ( /(   (  `   ( /(        )\\ )    )\\ )   )\\ )   (      * )   (      (    (     )\\ )     ",
+            ")\\))(   )\\())  )\\))(  )\\())(   ( (()/((  (()/(  (()/(   )\\   ` )  /(   )\\   ( )\\   )\\   (()/((    ",
+            "((_)()\ ((_)\\  ((_)()\((_)\ )\  )\\ /(_))\\  /(_))  /(_)|(((_)(  ( )(_)|(((_)( )((_|(((_)(  /(_))\\   ",
+            "(_()((_)_ ((_) (_()((_) ((_|(_)((_|_))((_)(_))   (_))_ )\\ _ )\\(_(_()) )\\ _ )((_)_ )\\ _ )\\(_))((_)  ",
+            "|  \\/  \\ \\ / / |  \\/  |/ _ \\ \\ / /|_ _| __/ __|   |   \\(_)_\(_)_   _| (_)_\(_) _ )(_)_\(_) __| __| ",
+            "| |\\/| |\\ V /  | |\\/| | (_) \\ V /  | || _|\\__ \\   | |) |/ _ \\   | |    / _ \\ | _ \\ / _ \\ \\__ \\ _|  ",
+            "|_|  |_| |_|   |_|  |_|\\___/ \\_/  |___|___|___/   |___//_/ \\_\\  |_|   /_/ \\_\\|___//_/ \\_\\|___/___|",
+        ]
+
+        red = "#ff4d4d"
+        yellow = "#ffff66"
+        orange = "#ffa500"
+        reset = ""  # Not needed in HTML
+
+        colored_title_html = ""
+        for line in app_title_lines:
+            colored_line = ""
+            for char in line:
+                color = random.choice([red, yellow, orange])
+                colored_line += f'<span style="color:{color};">{char}</span>'
+            colored_title_html += f'<p style="margin: 0; font-family: monospace; font-size: 0.8em; white-space: pre;">{colored_line}</p>'
+
+        try:
+            with open(template_path, 'r', encoding='utf-8') as template_file:
+                template_content = template_file.read()
+        except FileNotFoundError:
+            print(f"Error: Template file not found at {template_path}")
+            return
+
+        movie_grid_html = ""
+        for title, details in movies.items():
+            movie_grid_html += f"""
+            <div class="movie-item">
+                <img src="{details['poster']}" alt="{title} Poster">
+                <div class="movie-item-details">
+                    <h3>{title}</h3>
+                    <p>Year: {details['year']}</p>
+                    <p>Rating: {details['rating']}</p>
+                </div>
+            </div>
+            """
+
+        # Replace the movie grid first (this is independent)
+        website_content = template_content.replace("__TEMPLATE_MOVIE_GRID__", movie_grid_html)
+
+        # Replace the title within the header
+        website_content = website_content.replace("<h1>__TEMPLATE_TITLE__</h1>", colored_title_html)
+
+        try:
+            with open(output_path, 'w', encoding='utf-8') as output_file:
+                output_file.write(website_content)
+            print("Website was generated successfully.")
+        except Exception as e:
+            print(f"Error generating website: {e}")
+
 
     def run(self):
         """
@@ -253,6 +330,8 @@ class MovieApp:
                 self._show_movies_by_rating()
             elif choice == "9":
                 self._show_movies_by_year()
+            elif choice == "10":
+                self._generate_website()
             else:
                 print("Invalid choice, please try again.")
         print("Goodbye!")
