@@ -2,6 +2,11 @@ from istorage import IStorage
 import title_menu as tm
 import random
 import statistics
+import requests
+import os
+from dotenv import  load_dotenv
+
+load_dotenv()
 
 class MovieApp:
     """
@@ -17,6 +22,9 @@ class MovieApp:
         :return: None
         """
         self._storage = storage
+        self._api_key = os.environ.get('OMDB_API_KEY')
+        if not self._api_key:
+            print("Warning: OMDb API key not found in environment variables. 'Add Movie' will be limited.")
 
     def _list_all_movies(self):
         """
@@ -34,22 +42,41 @@ class MovieApp:
 
     def _add_new_movie(self):
         """
-        Adds a new movie to the storage.
+        Adds a new movie to the storage by fetching details from OMDb API.
 
         :return: None
         """
-        title = input("Enter movie title: ")
-        year = input("Enter release year: ")
-        try:
-            rating = float(input("Enter rating (0-10): "))
-            if not 0 <= rating <= 10:
-                raise ValueError
-        except ValueError:
-            print("Invalid rating. Please enter a number between 0 and 10.")
+        if not self._api_key:
+            print("OMDb API key is required for this feature. Please set the OMDB_API_KEY environment variable.")
             return
-        poster = input("Enter poster URL: ")
-        self._storage.add_movie(title, year, rating, poster)
-        print(f"Movie '{title}' added successfully.")
+
+        title = input("Enter the title of the movie to add: ")
+        api_url = f"http://www.omdbapi.com/?t={title}&apikey={self._api_key}&r=json"
+
+        try:
+            response = requests.get(api_url)
+            response.raise_for_status()
+            data = response.json()
+
+            if data.get('Response') == 'True':
+                movie_title = data.get('Title')
+                year = data.get('Year')
+                rating = data.get('imdbRating')
+                poster = data.get('Poster')
+
+                if movie_title and year and rating and poster and rating != 'N/A':
+                    self._storage.add_movie(movie_title, year, rating, poster)
+                    print(f"Movie '{movie_title}' added successfully.")
+                else:
+                    print(f"Could not retrieve complete information for '{title}' from OMDb.")
+            else:
+                error = data.get('Error')
+                print(f"Error fetching movie '{title}' from OMDb: {error}")
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error connecting to OMDb API: {e}")
+        except ValueError:
+            print("Error decoding JSON response from OMDb API.")
 
     def _delete_existing_movie(self):
         """
@@ -91,13 +118,24 @@ class MovieApp:
         """
         movies = self._storage.list_movies()
         if movies:
-            ratings = [details['rating'] for details in movies.values()]
-            print(f"Average rating: {statistics.mean(ratings):.2f}")
-            print(f"Median rating: {statistics.median(ratings)}")
-            print(f"Best rating: {max(ratings)}")
-            print(f"Worst rating: {min(ratings)}")
+            ratings = [float(details['rating']) for details in movies.values() if details['rating'] != 'N/A' and self._is_float(details['rating'])]
+            if ratings:
+                print(f"Average rating: {statistics.mean(ratings):.2f}")
+                print(f"Median rating: {statistics.median(ratings):.2f}")
+                print(f"Best rating: {max(ratings)}")
+                print(f"Worst rating: {min(ratings)}")
+            else:
+                print("No valid ratings available to calculate statistics.")
         else:
             print("No movies in the storage to calculate statistics.")
+
+    @staticmethod
+    def _is_float(value):
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
 
     def _show_random_movie(self):
         """
@@ -140,10 +178,15 @@ class MovieApp:
         """
         movies = self._storage.list_movies()
         if movies:
-            sorted_movies = sorted(movies.items(), key=lambda item: item[1]['rating'], reverse=True)
-            print("Movies sorted by rating (highest to lowest):")
-            for title, details in sorted_movies:
-                print(f"- {title}: Rating={details['rating']}, Year={details['year']}, Poster={details['poster']}")
+            # Filter out movies with 'N/A' or invalid ratings before sorting
+            valid_movies = {title: details for title, details in movies.items() if details['rating'] != 'N/A' and self._is_float(details['rating'])}
+            sorted_movies = sorted(valid_movies.items(), key=lambda item: float(item[1]['rating']), reverse=True)
+            if sorted_movies:
+                print("Movies sorted by rating (highest to lowest):")
+                for title, details in sorted_movies:
+                    print(f"- {title}: Rating={details['rating']}, Year={details['year']}, Poster={details['poster']}")
+            else:
+                print("No movies with valid ratings to sort.")
         else:
             print("No movies in the storage.")
 
@@ -155,7 +198,14 @@ class MovieApp:
         """
         movies = self._storage.list_movies()
         if movies:
-            sorted_movies = sorted(movies.items(), key=lambda item: item[1]['year'])
+            # Attempt to convert year to integer for sorting, handle errors
+            def sort_key(item):
+                try:
+                    return int(item[1]['year'])
+                except ValueError:
+                    return float('inf')  # Put movies with invalid years at the end by making them infinitely big
+
+            sorted_movies = sorted(movies.items(), key=sort_key)
             print("Movies sorted by year (oldest to newest):")
             for title, details in sorted_movies:
                 print(f"- {title}: Year={details['year']}, Rating={details['rating']}, Poster={details['poster']}")
@@ -184,7 +234,7 @@ class MovieApp:
             tm.print_menu()
             choice = input("Enter choice: ")
             if choice == "0":
-                running = self._exit()
+                running = MovieApp._exit()
             elif choice == "1":
                 self._list_all_movies()
             elif choice == "2":

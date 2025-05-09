@@ -12,11 +12,11 @@ def main():
     json_app.run()
 
     # Test with CSV storage
-    print("\n--- Testing with CSV Storage ---")
-    csv_storage = StorageCsv('movies.csv')
-    csv_app = MovieApp(csv_storage)
-    t.print_title()
-    csv_app.run()
+    # print("\n--- Testing with CSV Storage ---")
+    # csv_storage = StorageCsv('movies.csv')
+    # csv_app = MovieApp(csv_storage)
+    # t.print_title()
+    # csv_app.run()
 
 if __name__ == "__main__":
     main()
