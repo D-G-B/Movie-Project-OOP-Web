@@ -1,7 +1,7 @@
 import random
 
-def print_title():
-    title_text = r"""
+
+title_text = r"""
    *        )     *       )        (       (      (                                       (        
  (  `    ( /(   (  `   ( /(        )\ )    )\ )   )\ )   (      *   )   (      (    (     )\ )     
  )\))(   )\())  )\))(  )\())(   ( (()/((  (()/(  (()/(   )\   ` )  /(   )\   ( )\   )\   (()/((    
@@ -13,6 +13,7 @@ def print_title():
 
 """
 
+def print_title():
     # ANSI escape codes for colors
     red = "\033[38;5;196m"
     yellow = "\033[38;5;226m"

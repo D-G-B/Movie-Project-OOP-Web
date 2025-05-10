@@ -1,5 +1,5 @@
 import json
-from istorage import IStorage
+from storage.istorage import IStorage
 
 class StorageJson(IStorage):
     def __init__(self, file_path):

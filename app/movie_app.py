@@ -1,10 +1,12 @@
-from istorage import IStorage
-import title_menu as tm
+from storage.istorage import IStorage
+from app import title_menu as tm
+from app.title_menu import title_text
+from dotenv import  load_dotenv
 import random
 import statistics
 import requests
 import os
-from dotenv import  load_dotenv
+
 
 load_dotenv()
 
@@ -238,23 +240,15 @@ class MovieApp:
         :return: None
         """
         movies = self._storage.list_movies()
-        template_path = os.path.join("_static", "index_template.html")
-        output_path = os.path.join("_static", "index.html")
-        app_title_lines = [
-            "   * )     * )        (       (      (                                       (        ",
-            " (  `    ( /(   (  `   ( /(        )\\ )    )\\ )   )\\ )   (      * )   (      (    (     )\\ )     ",
-            ")\\))(   )\\())  )\\))(  )\\())(   ( (()/((  (()/(  (()/(   )\\   ` )  /(   )\\   ( )\\   )\\   (()/((    ",
-            "((_)()\ ((_)\\  ((_)()\((_)\ )\  )\\ /(_))\\  /(_))  /(_)|(((_)(  ( )(_)|(((_)( )((_|(((_)(  /(_))\\   ",
-            "(_()((_)_ ((_) (_()((_) ((_|(_)((_|_))((_)(_))   (_))_ )\\ _ )\\(_(_()) )\\ _ )((_)_ )\\ _ )\\(_))((_)  ",
-            "|  \\/  \\ \\ / / |  \\/  |/ _ \\ \\ / /|_ _| __/ __|   |   \\(_)_\(_)_   _| (_)_\(_) _ )(_)_\(_) __| __| ",
-            "| |\\/| |\\ V /  | |\\/| | (_) \\ V /  | || _|\\__ \\   | |) |/ _ \\   | |    / _ \\ | _ \\ / _ \\ \\__ \\ _|  ",
-            "|_|  |_| |_|   |_|  |_|\\___/ \\_/  |___|___|___/   |___//_/ \\_\\  |_|   /_/ \\_\\|___//_/ \\_\\|___/___|",
-        ]
 
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.join(script_dir, '..', 'web', '_static', 'index_template.html')
+        output_path = os.path.join(script_dir, '..', 'web', '_static', 'index.html')
+
+        app_title_lines = title_text.strip("\n").split("\n")
         red = "#ff4d4d"
         yellow = "#ffff66"
         orange = "#ffa500"
-        reset = ""  # Not needed in HTML
 
         colored_title_html = ""
         for line in app_title_lines:
@@ -262,7 +256,7 @@ class MovieApp:
             for char in line:
                 color = random.choice([red, yellow, orange])
                 colored_line += f'<span style="color:{color};">{char}</span>'
-            colored_title_html += f'<p style="margin: 0; font-family: monospace; font-size: 0.8em; white-space: pre;">{colored_line}</p>'
+            colored_title_html += f'<p class="ascii-title-line">{colored_line}</p>'  # Added a class
 
         try:
             with open(template_path, 'r', encoding='utf-8') as template_file:
@@ -284,10 +278,7 @@ class MovieApp:
             </div>
             """
 
-        # Replace the movie grid first (this is independent)
         website_content = template_content.replace("__TEMPLATE_MOVIE_GRID__", movie_grid_html)
-
-        # Replace the title within the header
         website_content = website_content.replace("<h1>__TEMPLATE_TITLE__</h1>", colored_title_html)
 
         try:
