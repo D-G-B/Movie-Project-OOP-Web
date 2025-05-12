@@ -9,9 +9,9 @@ body {
     min-height: 100vh;
     /* fire background*/
     background-image: url('joe-griffin-fire-animation.gif');
-    background-repeat: repeat-x; /* Repeat horizontally */
+    background-repeat: repeat-x;
     background-position: bottom center;
-    background-size: repeat; /* Adjust the height (80px) as needed */
+    background-size: repeat;
 }
 
 header {
@@ -29,15 +29,15 @@ header {
     margin: 0.2em 0;
     text-align: center;
     font-family: monospace;
-    font-size: 1.2em; /* You can adjust this value */
+    font-size: 1.2em;
     white-space: pre;
 }
 
 main {
     padding: 20px;
-    background-color: #333;
+    background-color: #30363D;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     margin: 0 auto 30px auto;
     padding-bottom: 30px;
     max-width: 1200px;
@@ -57,17 +57,17 @@ main {
 
 /* Individual movie card */
 .movie-item {
-    background-color: #555;
+    background-color: #666;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     transition: transform 0.2s ease-in-out;
     cursor: pointer;
 }
 
 .movie-item:hover {
-    transform: scale(1.03);
-    box-shadow: 0 5px 15px rgba(217, 161, 90, 0.5);
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(217, 161, 90, 0.7);
     border: 1px solid #D9A15A;
 }
 
